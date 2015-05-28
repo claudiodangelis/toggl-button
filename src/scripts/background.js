@@ -2,6 +2,8 @@
 /*global window: false, XMLHttpRequest: false, WebSocket: false, chrome: false, btoa: false, localStorage:false */
 "use strict";
 
+let { Cc, Ci } = require('chrome');
+
 var TogglButton = {
   $user: null,
   $curEntry: null,
@@ -243,6 +245,7 @@ var TogglButton = {
   },
 
   ajax: function (url, opts) {
+    const XMLHttpRequest  = Cc("@mozilla.org/xmlextras/xmlhttprequest;1", "nsIXMLHttpRequest");
     var xhr = new XMLHttpRequest(),
       method = opts.method || 'GET',
       baseUrl = opts.baseUrl || TogglButton.$ApiV8Url,
@@ -584,14 +587,14 @@ var TogglButton = {
         TogglButton.$curEntry === null &&
         TogglButton.workingTime()) {
         var notifications = require("sdk/notifications");
-    notifications.notify({
-        iconURL: 'images/icon-128.png'
-        title: "Toggl Button",
-        text: "Don't forget to track your time!",
-        onClick: function(data) {
-            TogglButton.triggerNotification();
-        }
-    });
+        notifications.notify({
+            iconURL: 'images/icon-128.png',
+            title: "Toggl Button",
+            text: "Don't forget to track your time!",
+            onClick: function(data) {
+                TogglButton.triggerNotification();
+            }
+        });
     }
   },
 
