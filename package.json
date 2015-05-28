@@ -1,14 +1,12 @@
 {
+  "title": "Toogl Button",
   "name": "toggl-button",
-  "version": "0.2.13",
-  "description": "Add Toggl one-click time tracking to popular web tools.",
-  "license": "BSD-3-Clause",
-  "private": true,
-  "devDependencies": {
-    "grunt": "~0.4.4",
-    "grunt-crx": "~0.3.3",
-    "grunt-jslint": "~1.1.8",
-    "grunt-contrib-compress": "~0.7.0",
-    "jslint": "~0.5.2"
-  }
+  "version": "0.0.1",
+  "description": "Toggl Button for Firefox",
+  "main": "index.js",
+  "author": "Mte90",
+  "engines": {
+    "firefox": ">=38.0a1"
+  },
+  "license": "MIT"
 }
