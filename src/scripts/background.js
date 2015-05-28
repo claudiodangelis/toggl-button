@@ -16,8 +16,10 @@ var TogglButton = {
   $idleInterval: 360000,
   $idleFromTo: "09:00-17:00",
   $lastSyncDate: null,
-  $fullVersion: ("TogglButton/" + chrome.runtime.getManifest().version),
-  $version: (chrome.runtime.getManifest().version),
+  //Firefox Version Start
+  $fullVersion: ("TogglButton/0.0.1"),
+  $version: ('0.0.1'),
+  //Firefox Version End
   $editForm: '<div id="toggl-button-edit-form">' +
       '<form>' +
       '<a class="toggl-button {service} active" href="#">Stop timer</a>' +
@@ -48,9 +50,13 @@ var TogglButton = {
       onLoad: function (xhr) {
         var resp, apiToken, projectMap = {}, clientMap = {}, clientNameMap = {}, tagMap = {}, projectTaskList = null;
         if (xhr.status === 200) {
-          chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-            chrome.tabs.sendMessage(tabs[0].id, {type: "sync"});
+          //Firefox Version Start
+          var tabs = require('sdk/tabs');
+          tabs.on('activate', function () {
+              console.log('active: ' + tabs.activeTab.id);
+              //chrome.tabs.sendMessage(tabs[0].id, {type: "sync"});
           });
+          //Firefox Version End
           resp = JSON.parse(xhr.responseText);
           TogglButton.$curEntry = null;
           TogglButton.setBrowserAction(null);
@@ -275,9 +281,13 @@ var TogglButton = {
           TogglButton.setBrowserAction(null);
           if (!!timeEntry.respond) {
             sendResponse({success: true, type: "Stop"});
-            chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-              chrome.tabs.sendMessage(tabs[0].id, {type: "stop-entry"});
+            //Firefox Version Start
+            var tabs = require('sdk/tabs');
+            tabs.on('activate', function () {
+                console.log('active: ' + tabs.activeTab.id);
+                //chrome.tabs.sendMessage(tabs[0].id, {type: "stop-entry"});
             });
+            //Firefox Version End
           }
           TogglButton.triggerNotification();
         }
@@ -324,14 +334,11 @@ var TogglButton = {
       badge = "x";
       TogglButton.setBrowserAction(null);
     }
-    chrome.browserAction.setBadgeText(
-      {text: badge}
-    );
   },
 
   setBrowserAction: function (runningEntry) {
     var imagePath = {'19': 'images/inactive-19.png', '38': 'images/inactive-38.png'},
-      title = chrome.runtime.getManifest().browser_action.default_title;
+      title = "Toggl Time Tracker";
     if (runningEntry !== null) {
       imagePath = {'19': 'images/active-19.png', '38': 'images/active-38.png'};
       if (!!runningEntry.description && runningEntry.description.length > 0) {
@@ -340,12 +347,6 @@ var TogglButton = {
         title = "(no description) - Toggl";
       }
     }
-    chrome.browserAction.setTitle({
-      title: title
-    });
-    chrome.browserAction.setIcon({
-      path: imagePath
-    });
     TogglButton.updatePopup();
   },
 
@@ -524,9 +525,12 @@ var TogglButton = {
   },
 
   refreshPage: function () {
-    chrome.tabs.query({active: true, currentWindow: true}, function (tabs) {
-      chrome.tabs.reload(tabs[0].id);
-    });
+      //Firefox Version Start
+      var tabs = require('sdk/tabs');
+      tabs.on('activate', function () {
+          tabs.reload();
+      });
+      //Firefox Version End
   },
 
   setSocket: function (state) {
@@ -579,18 +583,15 @@ var TogglButton = {
         TogglButton.$idleCheckEnabled &&
         TogglButton.$curEntry === null &&
         TogglButton.workingTime()) {
-      chrome.notifications.create(
-        'remind-to-track-time',
-        {
-          type: 'basic',
-          iconUrl: 'images/icon-128.png',
-          title: "Toggl Button",
-          message: "Don't forget to track your time!"
-        },
-        function () {
-          return;
+        var notifications = require("sdk/notifications");
+    notifications.notify({
+        iconURL: 'images/icon-128.png'
+        title: "Toggl Button",
+        text: "Don't forget to track your time!",
+        onClick: function(data) {
+            TogglButton.triggerNotification();
         }
-      );
+    });
     }
   },
 
@@ -624,12 +625,14 @@ var TogglButton = {
   },
 
   hideNotification: function () {
-    chrome.notifications.clear(
-      'remind-to-track-time',
-      function () {
-        return;
-      }
-    );
+      //Firefox Version Start
+//     chrome.notifications.clear(
+//       'remind-to-track-time',
+//       function () {
+//         return;
+//       }
+//     );
+    //Firefox Version End
   },
 
   checkDailyUpdate: function () {
@@ -647,10 +650,12 @@ var TogglButton = {
   },
 
   updatePopup: function () {
-    var popup = chrome.extension.getViews({"type": "popup"});
-    if (popup.length) {
-      popup[0].PopUp.showPage();
-    }
+    //Firefox Version Start
+//     var popup = chrome.extension.getViews({"type": "popup"});
+//     if (popup.length) {
+//       popup[0].PopUp.showPage();
+//     }
+    //Firefox Version End
   },
 
   newMessage: function (request, sender, sendResponse) {
@@ -708,6 +713,6 @@ TogglButton.$idleCheckEnabled = TogglButton.loadSetting("idleCheckEnabled");
 TogglButton.$idleInterval = !!localStorage.getItem("idleInterval") ? localStorage.getItem("idleInterval") : 360000;
 TogglButton.$idleFromTo = !!localStorage.getItem("idleFromTo") ? localStorage.getItem("idleFromTo") : "09:00-17:00";
 TogglButton.triggerNotification();
+//Firefox Version Start
 chrome.extension.onMessage.addListener(TogglButton.newMessage);
-chrome.notifications.onClosed.addListener(TogglButton.triggerNotification);
-chrome.notifications.onClicked.addListener(TogglButton.triggerNotification);
+//Firefox Version End
